@@ -1,4 +1,5 @@
 mod xsct;
+mod lifx;
 
 fn main() {
 	xsct::set_display_temp(3500);
