@@ -19,3 +19,30 @@ struct Header {
 	message_type: u16, // Message type determines the payload being used
 	_reserved2: [u8; 2]
 }
+
+impl Header {
+	fn new(mut self, message_type: u16, seq: u8) -> Self {
+		// Frame header
+		self.size = 0;
+		self.protocol = PROTOCOL;
+		// Apply protocol bitfields
+		{
+			let mut protocol = self.protocol.to_le_bytes(); 
+			protocol[1] |= ADDRESSABLE;
+			protocol[1] |= TAGGED; // Enabled by default, will be set to false if a target device is added
+			self.protocol = u16::from_le_bytes(protocol);
+		}
+		// Generate a unique source ID
+		self.source = rand::random();
+
+		// Frame address
+		// No target is currently set
+		self.target = [0; 8];
+		self.sequence = seq;
+
+		// Protocol header
+		self.message_type = message_type;
+
+		self
+	}
+}
